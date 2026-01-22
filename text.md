@@ -7,6 +7,13 @@ For discrepancy between final sheet ( Zespri Budget Setting Analysis Data Reques
 3. Pink Lady discrepancy between SOV and Compiled in 2023
 4. Bollo discrepancy between SOV and Compiled in 2023
 
+
+
+
+
+
+
+
 ## BE
 
 1. No kanzi data in final sheet, but media spend available in raw sheet

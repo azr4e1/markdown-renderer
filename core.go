@@ -6,30 +6,32 @@ type Italic Text
 type Underline Text
 type Crossed Text
 
-type Header1 string
-type Header2 string
-type Header3 string
-type Header4 string
-type Header5 string
-type Header6 string
+type Header struct {
+	Content []Text
+	Level   int
+}
 
-type ListItem string
+type Code Text
+type Quote []Text
+
+type ListItem []Text
 type UnorderedItem ListItem
 type OrderedItem ListItem
 type List []ListItem
 
 type Hyperlink struct {
-	Content string
+	Content Text
 	Link    string
 }
 
 type Image struct {
-	Content string
+	Content Text
 	Path    string
 }
 
-type TableHeader []Text
-type TableRow []Text
+type TableItem []Text
+type TableHeader []TableItem
+type TableRow []TableItem
 type Table struct {
 	Header TableHeader
 	Rows   []TableRow
