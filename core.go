@@ -16,11 +16,11 @@ type Image struct {
 	Content Text
 	Path    string
 }
+
 type Header struct {
 	Content []Text
 	Level   int
 }
-
 type Paragraph []Text
 type Code Text
 type Quote []Text
@@ -44,6 +44,9 @@ type Block interface {
 	isBlock() bool
 }
 
+func (b Header) isBlock() bool {
+	return true
+}
 func (b Paragraph) isBlock() bool {
 	return true
 }

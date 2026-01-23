@@ -11,6 +11,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	defer file.Close()
 	data, err := io.ReadAll(file)
 	if err != nil {
 		panic(err)
@@ -19,7 +20,8 @@ func main() {
 	blocks := MarkdownToBlocks(string(data))
 
 	for _, b := range blocks {
-		fmt.Println(b)
+		block := BlockParser(b)
+		fmt.Println(block)
 		fmt.Println("---")
 	}
 }
