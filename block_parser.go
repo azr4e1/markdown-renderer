@@ -48,7 +48,7 @@ func BlockParser(block string) Block {
 	} else if isTable(block) {
 		return tableify(block)
 	} else {
-		return Paragraph{Text(block)}
+		return Paragraph(LineParser(block))
 	}
 }
 
@@ -137,11 +137,11 @@ func isTable(block string) bool {
 
 func headerify(block string, level int) Header {
 	prefix := ""
-	for range level {
+	for i := 0; i < level; i++ {
 		prefix += HEADERPREFIX
 	}
 	prefix += " "
-	content := Text(strings.TrimPrefix(block, prefix))
+	content := Plain(strings.TrimPrefix(block, prefix))
 
 	return Header{[]Text{content}, level}
 }
@@ -163,7 +163,7 @@ func quoteify(block, delimiter string) Quote {
 	}
 	content := strings.Join(newLines, "\n")
 
-	return Quote{Text(content)}
+	return Quote{Plain(content)}
 }
 
 // subtasks to implement
@@ -178,7 +178,7 @@ func ulistify(block string) UnorderedList {
 		if newLine == l {
 			newLine = strings.TrimPrefix(l, UNORDEREDPREFIX2)
 		}
-		newItem := UnorderedItem{Text(newLine)}
+		newItem := UnorderedItem{Plain(newLine)}
 		newLines = append(newLines, newItem)
 	}
 
@@ -198,7 +198,7 @@ func olistify(block string) OrderedList {
 		if newLine == l {
 			newLine = strings.TrimPrefix(l, countedPrefix)
 		}
-		newItem := OrderedItem{Text(newLine)}
+		newItem := OrderedItem{Plain(newLine)}
 		newLines = append(newLines, newItem)
 		counter++
 	}

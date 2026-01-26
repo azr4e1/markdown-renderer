@@ -1,5 +1,8 @@
 package main
 
+import "fmt"
+
+// Inline text
 type Text interface {
 	isText() bool
 }
@@ -10,6 +13,14 @@ type Italic string
 type Underline string
 type InlineCode string
 type Crossed string
+type Hyperlink struct {
+	Content Text
+	Link    string
+}
+type Image struct {
+	Content Text
+	Path    string
+}
 
 func (t Plain) isText() bool {
 	return true
@@ -29,15 +40,16 @@ func (t InlineCode) isText() bool {
 func (t Crossed) isText() bool {
 	return true
 }
-
-type Hyperlink struct {
-	Content Text
-	Link    string
+func (t Hyperlink) isText() bool {
+	return true
+}
+func (t Image) isText() bool {
+	return true
 }
 
-type Image struct {
-	Content Text
-	Path    string
+// Markdown block
+type Block interface {
+	isBlock() bool
 }
 
 type Header struct {
@@ -63,10 +75,6 @@ type Table struct {
 	Rows   []TableRow
 }
 
-type Block interface {
-	isBlock() bool
-}
-
 func (b Header) isBlock() bool {
 	return true
 }
@@ -90,4 +98,23 @@ func (b UnorderedList) isBlock() bool {
 }
 func (b Table) isBlock() bool {
 	return true
+}
+
+func (t Plain) String() string {
+	return fmt.Sprintf("Plain(%s)", string(t))
+}
+func (t Bold) String() string {
+	return fmt.Sprintf("Bold(%s)", string(t))
+}
+func (t Italic) String() string {
+	return fmt.Sprintf("Italic(%s)", string(t))
+}
+func (t Underline) String() string {
+	return fmt.Sprintf("Underline(%s)", string(t))
+}
+func (t InlineCode) String() string {
+	return fmt.Sprintf("InlineCode(%s)", string(t))
+}
+func (t Crossed) String() string {
+	return fmt.Sprintf("Crossed(%s)", string(t))
 }
