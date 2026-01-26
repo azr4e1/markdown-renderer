@@ -1,13 +1,14 @@
-For discrepancy between final sheet ( Zespri Budget Setting Analysis Data Request (Completed by Client) ) and SOV sheet ( Copy of EU Media Investment  SOV from 2019 to 2024 ), refer to  Zespri Compiled Spend & Revenue Data v2
+For discrepancy between final sheet ( Zespri Budget Setting Analysis **Data Request
+(Completed by Client) )** and SOV sheet ( Copy of EU Media Investment  SOV from 2019 to 2024 ), refer to  Zespri Compiled Spend & Revenue Data v2
 
 # ciaone
 
 ## ES
 
-1. Trops mango + trops aguacate? or just mango (aguagate is avocado, so not fruit?)
-2. More brands in SOV and compiled sheet than final sheet
+1. *Trops mango* + **trops aguacate?** or just mango (aguagate is avocado, so not fruit?)
+2. More brands in SOV and compiled sheet _than_ final sheet
 3. Pink Lady discrepancy between SOV and Compiled in 2023
-4. Bollo discrepancy between SOV and Compiled in 2023
+4. Bollo discrepancy between __SOV and Compiled__ in 2023
 
 
 
@@ -21,12 +22,12 @@ For discrepancy between final sheet ( Zespri Budget Setting Analysis Data Reques
 
 ## BE
 
-1. No kanzi data in final sheet, but media spend available in raw sheet
-2. More brands in SOV and compiled sheet than final sheet
+1. No kanzi data in `final sheet`, but media spend available in raw sheet
+2. ~More brands~ in SOV and compiled sheet than final sheet
 
 ## NL
 
-1. More brands in SOV and compiled sheet than final sheet
+1. More -brands in SOV- and compiled sheet than final sheet
 
 ## DE
 
@@ -54,3 +55,7 @@ ciao come stai? Io tutto bene tu?
 
 
 #### Hahaha
+
+```python
+print("ciao")
+```

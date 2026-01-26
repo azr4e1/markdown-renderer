@@ -1,11 +1,34 @@
 package main
 
-type Text string
-type Bold Text
-type Italic Text
-type Underline Text
-type InlineCode Text
-type Crossed Text
+type Text interface {
+	isText() bool
+}
+
+type Plain string
+type Bold string
+type Italic string
+type Underline string
+type InlineCode string
+type Crossed string
+
+func (t Plain) isText() bool {
+	return true
+}
+func (t Bold) isText() bool {
+	return true
+}
+func (t Italic) isText() bool {
+	return true
+}
+func (t Underline) isText() bool {
+	return true
+}
+func (t InlineCode) isText() bool {
+	return true
+}
+func (t Crossed) isText() bool {
+	return true
+}
 
 type Hyperlink struct {
 	Content Text
@@ -22,7 +45,7 @@ type Header struct {
 	Level   int
 }
 type Paragraph []Text
-type Code Text
+type Code string
 type Quote []Text
 type Break bool
 

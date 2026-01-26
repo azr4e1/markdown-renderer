@@ -6,8 +6,8 @@ import (
 )
 
 const (
-	HEADERPREFIX     = "#"
 	BLOCKDELIMITER   = "\n\n"
+	HEADERPREFIX     = "#"
 	BREAKDELIMITER   = "---"
 	CODEDELIMITER    = "```"
 	QUOTEPREFIX1     = "> "
@@ -137,7 +137,7 @@ func isTable(block string) bool {
 
 func headerify(block string, level int) Header {
 	prefix := ""
-	for i := 0; i < level; i++ {
+	for range level {
 		prefix += HEADERPREFIX
 	}
 	prefix += " "
@@ -166,6 +166,7 @@ func quoteify(block, delimiter string) Quote {
 	return Quote{Text(content)}
 }
 
+// subtasks to implement
 func ulistify(block string) UnorderedList {
 	lines := strings.Split(block, "\n")
 	if len(lines) == 0 {
