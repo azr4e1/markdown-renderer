@@ -25,7 +25,7 @@ import (
 // }
 
 func main() {
-	text := "Ci *ao c* ome va"
+	text := "Ci *ao c om*-ok -**e va**"
 	nodes := LineParser(text)
 
 	fmt.Println(text)

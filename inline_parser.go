@@ -24,29 +24,6 @@ const (
 	CROSSED
 )
 
-var DELIMITERS map[int][]string = map[int][]string{
-	BOLD:       []string{BOLDDELIMITER1, BOLDDELIMITER2},
-	ITALIC:     []string{ITALICDELIMITER1, ITALICDELIMITER2},
-	UNDERLINE:  []string{UNDERLINEDELIMITER},
-	INLINECODE: []string{INLINECODEDELIMITER},
-	CROSSED:    []string{CROSSEDDELIMITER},
-}
-
-// func LineParser(nodes []Text) []Text {
-// 	newNodes := []Text{}
-// 	for _, n := range nodes {
-// 		switch node := n.(type) {
-// 		case Plain:
-// 			fmt.Println(node)
-// 			return nil
-// 		default:
-// 			newNodes = append(newNodes, n)
-// 			continue
-// 		}
-// 	}
-// 	return nil
-// }
-
 func LineParser(line string) []Text {
 	if len(line) < 2 {
 		return []Text{Plain(line)}
@@ -61,7 +38,7 @@ func LineParser(line string) []Text {
 
 	for i := 1; i < len(line); i++ {
 		current := string(line[i])
-		fmt.Println(current)
+		// fmt.Println(current)
 		window = window[len(window)-1:] + current
 		if !inside {
 			switch {
@@ -101,10 +78,9 @@ func LineParser(line string) []Text {
 				}
 			}
 			if inside {
-				text = text[:len(text)-1]
+				text = strings.TrimSuffix(text+current, window)
 				nodes = append(nodes, Plain(text))
 				text = strings.TrimPrefix(window, delimiter)
-				i++
 				if i < len(line) {
 					window = string(line[i])
 				}
@@ -112,15 +88,22 @@ func LineParser(line string) []Text {
 			}
 		} else {
 			if strings.HasSuffix(window, delimiter) {
-				text += strings.TrimSuffix(window, delimiter)
+				text = strings.TrimSuffix(text+current, delimiter)
 				nodes = append(nodes, SetType(text, inlineType))
 				text = ""
 				inlineType = PLAIN
 				delimiter = ""
 				inside = false
+				i++
+				if i < len(line) {
+					window = string(line[i])
+				}
+				continue
 			}
 		}
 		text += current
+		fmt.Println(inlineType)
+		fmt.Println(text)
 	}
 	if len(text) != 0 {
 		nodes = append(nodes, SetType(text, inlineType))
