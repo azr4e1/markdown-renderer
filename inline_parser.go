@@ -1,6 +1,7 @@
 package main
 
 import (
+	"regexp"
 	"strings"
 )
 
@@ -12,6 +13,8 @@ const (
 	UNDERLINEDELIMITER  = "~"
 	INLINECODEDELIMITER = "`"
 	CROSSEDDELIMITER    = "-"
+	IMAGEREGEX          = "!\\[(.*?)\\]\\((.*?)\\)"
+	LINKREGEX           = "\\[(.*?)\\]\\((.*?)\\)"
 )
 
 const (
@@ -23,7 +26,10 @@ const (
 	CROSSED
 )
 
-func LineParser(line string) []Text {
+var ImagePattern = regexp.MustCompile(IMAGEREGEX)
+var HyperlinkPattern = regexp.MustCompile(LINKREGEX)
+
+func SimpleParser(line string) []Text {
 	if len(line) < 2 {
 		return []Text{Plain(line)}
 	}
@@ -105,6 +111,74 @@ func LineParser(line string) []Text {
 		nodes = append(nodes, SetType(text, inlineType))
 	}
 	return nodes
+}
+
+func ImageParser(line string) []Text {
+	// found := ImagePattern.FindAllString(line, -1)
+	found := ImagePattern.FindAllStringSubmatch(line, -1)
+	textNodes := ImagePattern.Split(line, -1)
+	nodes := []Text{}
+
+	if len(textNodes) == 0 {
+		return nodes
+	}
+	firstNode := textNodes[0]
+	if len(firstNode) > 0 {
+		nodes = append(nodes, Plain(firstNode))
+	}
+
+	for i := 0; i < len(found); i++ {
+		im := found[i]
+		content := im[1]
+		path := im[2]
+		imageNode := Image{
+			Content: SimpleParser(content),
+			Path:    path,
+		}
+		textNode := textNodes[i+1]
+		nodes = append(nodes, imageNode)
+		if len(textNode) > 0 {
+			nodes = append(nodes, Plain(textNode))
+		}
+	}
+
+	return nodes
+}
+
+func HyperlinkParser(line string) []Text {
+	// found := ImagePattern.FindAllString(line, -1)
+	found := HyperlinkPattern.FindAllStringSubmatch(line, -1)
+	textNodes := HyperlinkPattern.Split(line, -1)
+	nodes := []Text{}
+
+	if len(textNodes) == 0 {
+		return nodes
+	}
+	firstNode := textNodes[0]
+	if len(firstNode) > 0 {
+		nodes = append(nodes, Plain(firstNode))
+	}
+
+	for i := 0; i < len(found); i++ {
+		im := found[i]
+		content := im[1]
+		path := im[2]
+		imageNode := Image{
+			Content: SimpleParser(content),
+			Path:    path,
+		}
+		textNode := textNodes[i+1]
+		nodes = append(nodes, imageNode)
+		if len(textNode) > 0 {
+			nodes = append(nodes, Plain(textNode))
+		}
+	}
+
+	return nodes
+}
+
+func LineParser(line string) []Text {
+	return nil
 }
 
 func SetType(text string, TYPE int) Text {
