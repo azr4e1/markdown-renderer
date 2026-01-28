@@ -29,7 +29,7 @@ const (
 var imagePattern = regexp.MustCompile(IMAGEREGEX)
 var hyperlinkPattern = regexp.MustCompile(LINKREGEX)
 
-// TODO: handle escapes and nested formatting
+// TODO: handle escapes and nested formatting; possibly recursive implementation
 func SimpleParser(line string) []Node {
 	if len(line) < 2 {
 		return []Node{Plain(line)}
