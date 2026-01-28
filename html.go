@@ -21,11 +21,11 @@ func htmlRender(nodes []HTMLNode) string {
 // Leaves
 
 type HTMLPlain string
-type HTMLBold string
-type HTMLItalic string
-type HTMLUnderline string
-type HTMLInlineCode string
-type HTMLCrossed string
+type HTMLBold []HTMLNode
+type HTMLItalic []HTMLNode
+type HTMLUnderline []HTMLNode
+type HTMLInlineCode []HTMLNode
+type HTMLCrossed []HTMLNode
 type HTMLHyperlink struct {
 	Content []HTMLNode
 	Link    string

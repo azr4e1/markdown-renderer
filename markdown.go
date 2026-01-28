@@ -17,11 +17,11 @@ func markdownToHTML(nodes []Node) []HTMLNode {
 // Leaves
 
 type Plain string
-type Bold string
-type Italic string
-type Underline string
-type InlineCode string
-type Crossed string
+type Bold []Node
+type Italic []Node
+type Underline []Node
+type InlineCode []Node
+type Crossed []Node
 type Hyperlink struct {
 	Content []Node
 	Link    string
@@ -35,19 +35,19 @@ func (t Plain) ToHTML() HTMLNode {
 	return HTMLPlain(t)
 }
 func (t Bold) ToHTML() HTMLNode {
-	return HTMLBold(t)
+	return HTMLBold(markdownToHTML(t))
 }
 func (t Italic) ToHTML() HTMLNode {
-	return HTMLItalic(t)
+	return HTMLItalic(markdownToHTML(t))
 }
 func (t Underline) ToHTML() HTMLNode {
-	return HTMLUnderline(t)
+	return HTMLUnderline(markdownToHTML(t))
 }
 func (t InlineCode) ToHTML() HTMLNode {
-	return HTMLInlineCode(t)
+	return HTMLInlineCode(markdownToHTML(t))
 }
 func (t Crossed) ToHTML() HTMLNode {
-	return HTMLCrossed(t)
+	return HTMLCrossed(markdownToHTML(t))
 }
 func (t Hyperlink) ToHTML() HTMLNode {
 	return HTMLHyperlink{Content: markdownToHTML(t.Content), Link: t.Link}
