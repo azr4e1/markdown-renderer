@@ -14,11 +14,11 @@ type Underline string
 type InlineCode string
 type Crossed string
 type Hyperlink struct {
-	Content Text
+	Content []Text
 	Link    string
 }
 type Image struct {
-	Content Text
+	Content []Text
 	Path    string
 }
 
