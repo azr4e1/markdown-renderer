@@ -1,4 +1,4 @@
-package main
+package markdownrenderer
 
 type Node interface {
 	ToHTML() HTMLNode

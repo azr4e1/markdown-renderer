@@ -1,4 +1,4 @@
-package main
+package markdownrenderer
 
 import "fmt"
 
@@ -83,7 +83,7 @@ type HTMLTable struct {
 }
 
 func (b HTMLHeader) HTMLRender() string {
-	return fmt.Sprintf("<h%d>%s</h%d>", b.Level, htmlRender(b.Content))
+	return fmt.Sprintf("<h%d>%s</h%d>", b.Level, htmlRender(b.Content), b.Level)
 }
 func (b HTMLParagraph) HTMLRender() string {
 	return fmt.Sprintf("<p>%s</p>", b)
