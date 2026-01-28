@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -33,12 +32,11 @@ func LineParser(line string) []Text {
 	inside := false
 	delimiter := ""
 	inlineType := PLAIN
-	text := ""
+	text := window
 	nodes := []Text{}
 
 	for i := 1; i < len(line); i++ {
 		current := string(line[i])
-		// fmt.Println(current)
 		window = window[len(window)-1:] + current
 		if !inside {
 			switch {
@@ -73,13 +71,12 @@ func LineParser(line string) []Text {
 			default:
 				delimiter = ""
 				inside = false
-				if i == 1 {
-					text += window[:1]
-				}
 			}
 			if inside {
 				text = strings.TrimSuffix(text+current, window)
-				nodes = append(nodes, Plain(text))
+				if len(text) > 0 {
+					nodes = append(nodes, Plain(text))
+				}
 				text = strings.TrimPrefix(window, delimiter)
 				if i < len(line) {
 					window = string(line[i])
@@ -97,13 +94,12 @@ func LineParser(line string) []Text {
 				i++
 				if i < len(line) {
 					window = string(line[i])
+					text = window
 				}
 				continue
 			}
 		}
 		text += current
-		fmt.Println(inlineType)
-		fmt.Println(text)
 	}
 	if len(text) != 0 {
 		nodes = append(nodes, SetType(text, inlineType))
