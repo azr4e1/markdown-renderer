@@ -141,9 +141,9 @@ func headerify(block string, level int) Header {
 		prefix += HEADERPREFIX
 	}
 	prefix += " "
-	content := Plain(strings.TrimPrefix(block, prefix))
+	content := strings.TrimPrefix(block, prefix)
 
-	return Header{[]Text{content}, level}
+	return Header{LineParser(content), level}
 }
 
 func codeify(block string) Code {
@@ -163,7 +163,7 @@ func quoteify(block, delimiter string) Quote {
 	}
 	content := strings.Join(newLines, "\n")
 
-	return Quote{Plain(content)}
+	return Quote(LineParser(content))
 }
 
 // subtasks to implement
@@ -178,7 +178,7 @@ func ulistify(block string) UnorderedList {
 		if newLine == l {
 			newLine = strings.TrimPrefix(l, UNORDEREDPREFIX2)
 		}
-		newItem := UnorderedItem{Plain(newLine)}
+		newItem := UnorderedItem(LineParser(newLine))
 		newLines = append(newLines, newItem)
 	}
 
@@ -198,7 +198,7 @@ func olistify(block string) OrderedList {
 		if newLine == l {
 			newLine = strings.TrimPrefix(l, countedPrefix)
 		}
-		newItem := OrderedItem{Plain(newLine)}
+		newItem := OrderedItem(LineParser(newLine))
 		newLines = append(newLines, newItem)
 		counter++
 	}

@@ -10,9 +10,9 @@ const (
 	BOLDDELIMITER2      = "__"
 	ITALICDELIMITER1    = "*"
 	ITALICDELIMITER2    = "_"
-	UNDERLINEDELIMITER  = "~"
+	UNDERLINEDELIMITER  = "-"
 	INLINECODEDELIMITER = "`"
-	CROSSEDDELIMITER    = "-"
+	CROSSEDDELIMITER    = "~"
 	IMAGEREGEX          = "!\\[(.*?)\\]\\((.*?)\\)"
 	LINKREGEX           = "\\[(.*?)\\]\\((.*?)\\)"
 )
@@ -160,15 +160,15 @@ func HyperlinkParser(line string) []Text {
 	}
 
 	for i := 0; i < len(found); i++ {
-		im := found[i]
-		content := im[1]
-		path := im[2]
-		imageNode := Image{
+		link := found[i]
+		content := link[1]
+		path := link[2]
+		linkeNode := Hyperlink{
 			Content: SimpleParser(content),
-			Path:    path,
+			Link:    path,
 		}
 		textNode := textNodes[i+1]
-		nodes = append(nodes, imageNode)
+		nodes = append(nodes, linkeNode)
 		if len(textNode) > 0 {
 			nodes = append(nodes, Plain(textNode))
 		}
@@ -177,8 +177,32 @@ func HyperlinkParser(line string) []Text {
 	return nodes
 }
 
+func nodePushFunc(nodes []Text, parseFunc func(string) []Text) []Text {
+	newNodes := []Text{}
+	for _, n := range nodes {
+		switch v := n.(type) {
+		case Plain:
+			stringNode := string(v)
+			newNodes = append(newNodes, parseFunc(stringNode)...)
+		default:
+			newNodes = append(newNodes, v)
+		}
+	}
+	return newNodes
+}
+
+func NodeParser(nodes []Text) []Text {
+	nodes = nodePushFunc(nodes, ImageParser)
+	nodes = nodePushFunc(nodes, HyperlinkParser)
+	nodes = nodePushFunc(nodes, SimpleParser)
+
+	return nodes
+}
+
 func LineParser(line string) []Text {
-	return nil
+	nodes := []Text{Plain(line)}
+
+	return NodeParser(nodes)
 }
 
 func SetType(text string, TYPE int) Text {

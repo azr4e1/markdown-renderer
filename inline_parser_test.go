@@ -93,37 +93,37 @@ func TestHyperlinkParser(t *testing.T) {
 		{
 			name:     "single link",
 			input:    "[click here](https://example.com)",
-			expected: []Text{Image{Content: []Text{Plain("click here")}, Path: "https://example.com"}},
+			expected: []Text{Hyperlink{Content: []Text{Plain("click here")}, Link: "https://example.com"}},
 		},
 		{
 			name:     "link with plain text before",
 			input:    "visit [site](url.com)",
-			expected: []Text{Plain("visit "), Image{Content: []Text{Plain("site")}, Path: "url.com"}},
+			expected: []Text{Plain("visit "), Hyperlink{Content: []Text{Plain("site")}, Link: "url.com"}},
 		},
 		{
 			name:     "link with plain text after",
 			input:    "[site](url.com) for info",
-			expected: []Text{Image{Content: []Text{Plain("site")}, Path: "url.com"}, Plain(" for info")},
+			expected: []Text{Hyperlink{Content: []Text{Plain("site")}, Link: "url.com"}, Plain(" for info")},
 		},
 		{
 			name:     "link with text before and after",
 			input:    "visit [site](url.com) now",
-			expected: []Text{Plain("visit "), Image{Content: []Text{Plain("site")}, Path: "url.com"}, Plain(" now")},
+			expected: []Text{Plain("visit "), Hyperlink{Content: []Text{Plain("site")}, Link: "url.com"}, Plain(" now")},
 		},
 		{
 			name:     "multiple links",
 			input:    "[a](1.com)[b](2.com)",
-			expected: []Text{Image{Content: []Text{Plain("a")}, Path: "1.com"}, Image{Content: []Text{Plain("b")}, Path: "2.com"}},
+			expected: []Text{Hyperlink{Content: []Text{Plain("a")}, Link: "1.com"}, Hyperlink{Content: []Text{Plain("b")}, Link: "2.com"}},
 		},
 		{
 			name:     "link with bold in text",
 			input:    "[**bold link**](url.com)",
-			expected: []Text{Image{Content: []Text{Bold("bold link")}, Path: "url.com"}},
+			expected: []Text{Hyperlink{Content: []Text{Bold("bold link")}, Link: "url.com"}},
 		},
 		{
 			name:     "link with italic in text",
 			input:    "[*italic link*](url.com)",
-			expected: []Text{Image{Content: []Text{Italic("italic link")}, Path: "url.com"}},
+			expected: []Text{Hyperlink{Content: []Text{Italic("italic link")}, Link: "url.com"}},
 		},
 	}
 
@@ -179,8 +179,8 @@ func TestSimpleParser(t *testing.T) {
 			expected: []Text{Italic("italic")},
 		},
 		{
-			name:     "underline with tilde",
-			input:    "~underline~",
+			name:     "underline with dash",
+			input:    "-underline-",
 			expected: []Text{Underline("underline")},
 		},
 		{
@@ -189,8 +189,8 @@ func TestSimpleParser(t *testing.T) {
 			expected: []Text{InlineCode("code")},
 		},
 		{
-			name:     "crossed with dash",
-			input:    "-crossed-",
+			name:     "crossed with tilde",
+			input:    "~crossed~",
 			expected: []Text{Crossed("crossed")},
 		},
 		{
@@ -205,7 +205,7 @@ func TestSimpleParser(t *testing.T) {
 		},
 		{
 			name:     "original example with italic crossed and bold",
-			input:    "*Ci ao c om*-ok -**e va**",
+			input:    "*Ci ao c om*~ok ~**e va**",
 			expected: []Text{Italic("Ci ao c om"), Crossed("ok "), Bold("e va")},
 		},
 		{
@@ -220,7 +220,7 @@ func TestSimpleParser(t *testing.T) {
 		},
 		{
 			name:     "crossed then underline",
-			input:    "-abc- ~def~",
+			input:    "~abc~ -def-",
 			expected: []Text{Crossed("abc"), Plain(" "), Underline("def")},
 		},
 		{
@@ -255,6 +255,89 @@ func TestSimpleParser(t *testing.T) {
 			got := SimpleParser(tt.input)
 			if diff := cmp.Diff(got, tt.expected); diff != "" {
 				t.Errorf("LineParser(%q)\n  got:      %v\n  expected: %v\n  Diff:      %s", tt.input, got, tt.expected, diff)
+			}
+		})
+	}
+}
+
+func TestNodeParser(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    []Text
+		expected []Text
+	}{
+		{
+			name:     "empty slice",
+			input:    []Text{},
+			expected: []Text{},
+		},
+		{
+			name:     "plain text only",
+			input:    []Text{Plain("hello world")},
+			expected: []Text{Plain("hello world")},
+		},
+		{
+			name:     "bold text",
+			input:    []Text{Plain("**bold**")},
+			expected: []Text{Bold("bold")},
+		},
+		{
+			name:     "single image",
+			input:    []Text{Plain("![alt](img.png)")},
+			expected: []Text{Image{Content: []Text{Plain("alt")}, Path: "img.png"}},
+		},
+		{
+			name:     "single link",
+			input:    []Text{Plain("[click](url.com)")},
+			expected: []Text{Hyperlink{Content: []Text{Plain("click")}, Link: "url.com"}},
+		},
+		{
+			name:     "image and link together",
+			input:    []Text{Plain("![img](a.png) and [link](b.com)")},
+			expected: []Text{Image{Content: []Text{Plain("img")}, Path: "a.png"}, Plain(" and "), Hyperlink{Content: []Text{Plain("link")}, Link: "b.com"}},
+		},
+		{
+			name:     "link with bold text inside",
+			input:    []Text{Plain("[**bold link**](url.com)")},
+			expected: []Text{Hyperlink{Content: []Text{Bold("bold link")}, Link: "url.com"}},
+		},
+		{
+			name:     "image with italic alt text",
+			input:    []Text{Plain("![*italic*](img.png)")},
+			expected: []Text{Image{Content: []Text{Italic("italic")}, Path: "img.png"}},
+		},
+		{
+			name:     "mixed content with formatting",
+			input:    []Text{Plain("hello **world** and [link](url.com)")},
+			expected: []Text{Plain("hello "), Bold("world"), Plain(" and "), Hyperlink{Content: []Text{Plain("link")}, Link: "url.com"}},
+		},
+		{
+			name:     "preserves non-plain nodes",
+			input:    []Text{Bold("already bold"), Plain(" and **more**")},
+			expected: []Text{Bold("already bold"), Plain(" and "), Bold("more")},
+		},
+		{
+			name:     "complex mixed content",
+			input:    []Text{Plain("![pic](a.png) *italic* [link](b.com) **bold**")},
+			expected: []Text{Image{Content: []Text{Plain("pic")}, Path: "a.png"}, Plain(" "), Italic("italic"), Plain(" "), Hyperlink{Content: []Text{Plain("link")}, Link: "b.com"}, Plain(" "), Bold("bold")},
+		},
+		{
+			name:     "multiple plain nodes",
+			input:    []Text{Plain("**a**"), Plain(" "), Plain("**b**")},
+			expected: []Text{Bold("a"), Plain(" "), Bold("b")},
+		},
+		{
+			name:     "image then formatting in same line",
+			input:    []Text{Plain("![alt](img.png) then `code`")},
+			expected: []Text{Image{Content: []Text{Plain("alt")}, Path: "img.png"}, Plain(" then "), InlineCode("code")},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := NodeParser(tt.input)
+			if diff := cmp.Diff(got, tt.expected); diff != "" {
+				t.Errorf("LineParser(%v)\n  got:      %v\n  expected: %v\n  Diff:      %s", tt.input, got, tt.expected, diff)
 			}
 		})
 	}
