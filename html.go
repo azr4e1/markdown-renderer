@@ -76,11 +76,11 @@ type HTMLOrderedList []HTMLOrderedItem
 type HTMLUnorderedList []HTMLUnorderedItem
 
 type HTMLTableItem []HTMLNode
-type HTMLTableHeader []TableItem
-type HTMLTableRow []TableItem
+type HTMLTableHeader []HTMLTableItem
+type HTMLTableRow []HTMLTableItem
 type HTMLTable struct {
-	Header TableHeader
-	Rows   []TableRow
+	Header HTMLTableHeader
+	Rows   []HTMLTableRow
 }
 
 func (b HTMLDiv) HTMLRender() string {
@@ -96,7 +96,7 @@ func (b HTMLCode) HTMLRender() string {
 	return fmt.Sprintf("<pre><code>%s</code></pre>", b)
 }
 func (b HTMLQuote) HTMLRender() string {
-	return fmt.Sprintf("<blockquote>%s</blockquote>", b)
+	return fmt.Sprintf("<blockquote>%s</blockquote>", htmlRender(b))
 }
 func (b HTMLBreak) HTMLRender() string {
 	return "<br>"
