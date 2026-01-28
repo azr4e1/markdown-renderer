@@ -29,9 +29,9 @@ const (
 var ImagePattern = regexp.MustCompile(IMAGEREGEX)
 var HyperlinkPattern = regexp.MustCompile(LINKREGEX)
 
-func SimpleParser(line string) []Text {
+func SimpleParser(line string) []Node {
 	if len(line) < 2 {
-		return []Text{Plain(line)}
+		return []Node{Plain(line)}
 	}
 
 	window := line[:1]
@@ -39,7 +39,7 @@ func SimpleParser(line string) []Text {
 	delimiter := ""
 	inlineType := PLAIN
 	text := window
-	nodes := []Text{}
+	nodes := []Node{}
 
 	for i := 1; i < len(line); i++ {
 		current := string(line[i])
@@ -113,11 +113,11 @@ func SimpleParser(line string) []Text {
 	return nodes
 }
 
-func ImageParser(line string) []Text {
+func ImageParser(line string) []Node {
 	// found := ImagePattern.FindAllString(line, -1)
 	found := ImagePattern.FindAllStringSubmatch(line, -1)
 	textNodes := ImagePattern.Split(line, -1)
-	nodes := []Text{}
+	nodes := []Node{}
 
 	if len(textNodes) == 0 {
 		return nodes
@@ -145,11 +145,11 @@ func ImageParser(line string) []Text {
 	return nodes
 }
 
-func HyperlinkParser(line string) []Text {
+func HyperlinkParser(line string) []Node {
 	// found := ImagePattern.FindAllString(line, -1)
 	found := HyperlinkPattern.FindAllStringSubmatch(line, -1)
 	textNodes := HyperlinkPattern.Split(line, -1)
-	nodes := []Text{}
+	nodes := []Node{}
 
 	if len(textNodes) == 0 {
 		return nodes
@@ -177,8 +177,8 @@ func HyperlinkParser(line string) []Text {
 	return nodes
 }
 
-func nodePushFunc(nodes []Text, parseFunc func(string) []Text) []Text {
-	newNodes := []Text{}
+func nodePushFunc(nodes []Node, parseFunc func(string) []Node) []Node {
+	newNodes := []Node{}
 	for _, n := range nodes {
 		switch v := n.(type) {
 		case Plain:
@@ -191,7 +191,7 @@ func nodePushFunc(nodes []Text, parseFunc func(string) []Text) []Text {
 	return newNodes
 }
 
-func NodeParser(nodes []Text) []Text {
+func NodeParser(nodes []Node) []Node {
 	nodes = nodePushFunc(nodes, ImageParser)
 	nodes = nodePushFunc(nodes, HyperlinkParser)
 	nodes = nodePushFunc(nodes, SimpleParser)
@@ -199,14 +199,14 @@ func NodeParser(nodes []Text) []Text {
 	return nodes
 }
 
-func LineParser(line string) []Text {
-	nodes := []Text{Plain(line)}
+func LineParser(line string) []Node {
+	nodes := []Node{Plain(line)}
 
 	return NodeParser(nodes)
 }
 
-func SetType(text string, TYPE int) Text {
-	var typedText Text
+func SetType(text string, TYPE int) Node {
+	var typedText Node
 	switch TYPE {
 	case BOLD:
 		typedText = Bold(text)

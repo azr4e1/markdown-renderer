@@ -32,7 +32,7 @@ func MarkdownToBlocks(markdown string) []string {
 	return cleanBlocks
 }
 
-func BlockParser(block string) Block {
+func BlockParser(block string) Node {
 	if level, isH := isHeader(block); isH {
 		return headerify(block, level)
 	} else if isBreak(block) {
@@ -134,6 +134,7 @@ func isOrderedList(block string) bool {
 	return true
 }
 
+// TODO: to implement
 func isTable(block string) bool {
 	return false
 }
@@ -169,7 +170,7 @@ func quoteify(block, delimiter string) Quote {
 	return Quote(LineParser(content))
 }
 
-// subtasks to implement
+// TODO: subtasks to implement
 func ulistify(block string) UnorderedList {
 	lines := strings.Split(block, "\n")
 	if len(lines) == 0 {
@@ -188,6 +189,7 @@ func ulistify(block string) UnorderedList {
 	return newLines
 }
 
+// TODO: subtasks to implement
 func olistify(block string) OrderedList {
 	lines := strings.Split(block, "\n")
 	if len(lines) == 0 {
@@ -209,6 +211,7 @@ func olistify(block string) OrderedList {
 	return newLines
 }
 
+// TODO: to implement
 func tableify(block string) Table {
 	return Table{}
 }

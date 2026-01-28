@@ -398,17 +398,17 @@ func TestBlockParser(t *testing.T) {
 	tests := []struct {
 		name     string
 		input    string
-		expected Block
+		expected Node
 	}{
 		{
 			name:     "header h1",
 			input:    "# Hello",
-			expected: Header{Content: []Text{Plain("Hello")}, Level: 1},
+			expected: Header{Content: []Node{Plain("Hello")}, Level: 1},
 		},
 		{
 			name:     "header h2",
 			input:    "## World",
-			expected: Header{Content: []Text{Plain("World")}, Level: 2},
+			expected: Header{Content: []Node{Plain("World")}, Level: 2},
 		},
 		{
 			name:     "break",
@@ -423,33 +423,33 @@ func TestBlockParser(t *testing.T) {
 		{
 			name:     "quote",
 			input:    "> quoted text",
-			expected: Quote([]Text{Plain("quoted text")}),
+			expected: Quote([]Node{Plain("quoted text")}),
 		},
 		{
 			name:  "unordered list",
 			input: "* item one\n* item two",
 			expected: UnorderedList{
-				UnorderedItem([]Text{Plain("item one")}),
-				UnorderedItem([]Text{Plain("item two")}),
+				UnorderedItem([]Node{Plain("item one")}),
+				UnorderedItem([]Node{Plain("item two")}),
 			},
 		},
 		{
 			name:  "ordered list",
 			input: "1. first\n2. second",
 			expected: OrderedList{
-				OrderedItem([]Text{Plain("first")}),
-				OrderedItem([]Text{Plain("second")}),
+				OrderedItem([]Node{Plain("first")}),
+				OrderedItem([]Node{Plain("second")}),
 			},
 		},
 		{
 			name:     "paragraph",
 			input:    "Just some text",
-			expected: Paragraph([]Text{Plain("Just some text")}),
+			expected: Paragraph([]Node{Plain("Just some text")}),
 		},
 		{
 			name:     "paragraph with bold",
 			input:    "Some **bold** text",
-			expected: Paragraph([]Text{Plain("Some "), Bold("bold"), Plain(" text")}),
+			expected: Paragraph([]Node{Plain("Some "), Bold("bold"), Plain(" text")}),
 		},
 	}
 
@@ -491,6 +491,219 @@ func TestCodeify(t *testing.T) {
 			got := codeify(tt.input)
 			if got != tt.expected {
 				t.Errorf("codeify(%q) = %v, expected %v", tt.input, got, tt.expected)
+			}
+		})
+	}
+}
+
+func TestQuoteify(t *testing.T) {
+	tests := []struct {
+		name      string
+		input     string
+		delimiter string
+		expected  Quote
+	}{
+		{
+			name:      "single line quote",
+			input:     "> hello",
+			delimiter: "> ",
+			expected:  Quote([]Node{Plain("hello")}),
+		},
+		{
+			name:      "multiline quote",
+			input:     "> line one\n> line two",
+			delimiter: "> ",
+			expected:  Quote([]Node{Plain("line one\nline two")}),
+		},
+		{
+			name:      "quote with bold",
+			input:     "> **bold** text",
+			delimiter: "> ",
+			expected:  Quote([]Node{Bold("bold"), Plain(" text")}),
+		},
+		{
+			name:      "quote with italic",
+			input:     "> *italic* here",
+			delimiter: "> ",
+			expected:  Quote([]Node{Italic("italic"), Plain(" here")}),
+		},
+		{
+			name:      "tab indented quote",
+			input:     "\tindented line",
+			delimiter: "\t",
+			expected:  Quote([]Node{Plain("indented line")}),
+		},
+		{
+			name:      "space indented quote",
+			input:     "  indented line",
+			delimiter: "  ",
+			expected:  Quote([]Node{Plain("indented line")}),
+		},
+		{
+			name:      "multiline tab quote",
+			input:     "\tline one\n\tline two",
+			delimiter: "\t",
+			expected:  Quote([]Node{Plain("line one\nline two")}),
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := quoteify(tt.input, tt.delimiter)
+			if diff := cmp.Diff(got, tt.expected); diff != "" {
+				t.Errorf("quoteify(%q, %q)\n  got:      %v\n  expected: %v\n  Diff:     %s", tt.input, tt.delimiter, got, tt.expected, diff)
+			}
+		})
+	}
+}
+
+func TestUlistify(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected UnorderedList
+	}{
+		{
+			name:  "single item with asterisk",
+			input: "* item one",
+			expected: UnorderedList{
+				UnorderedItem([]Node{Plain("item one")}),
+			},
+		},
+		{
+			name:  "single item with dash",
+			input: "- item one",
+			expected: UnorderedList{
+				UnorderedItem([]Node{Plain("item one")}),
+			},
+		},
+		{
+			name:  "multiple items with asterisk",
+			input: "* first\n* second\n* third",
+			expected: UnorderedList{
+				UnorderedItem([]Node{Plain("first")}),
+				UnorderedItem([]Node{Plain("second")}),
+				UnorderedItem([]Node{Plain("third")}),
+			},
+		},
+		{
+			name:  "multiple items with dash",
+			input: "- first\n- second",
+			expected: UnorderedList{
+				UnorderedItem([]Node{Plain("first")}),
+				UnorderedItem([]Node{Plain("second")}),
+			},
+		},
+		{
+			name:  "mixed asterisk and dash",
+			input: "* first\n- second",
+			expected: UnorderedList{
+				UnorderedItem([]Node{Plain("first")}),
+				UnorderedItem([]Node{Plain("second")}),
+			},
+		},
+		{
+			name:  "item with bold",
+			input: "* **bold** item",
+			expected: UnorderedList{
+				UnorderedItem([]Node{Bold("bold"), Plain(" item")}),
+			},
+		},
+		{
+			name:  "item with italic",
+			input: "* *italic* item",
+			expected: UnorderedList{
+				UnorderedItem([]Node{Italic("italic"), Plain(" item")}),
+			},
+		},
+		{
+			name:  "item with link",
+			input: "* [link](url.com)",
+			expected: UnorderedList{
+				UnorderedItem([]Node{Hyperlink{Content: []Node{Plain("link")}, Link: "url.com"}}),
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := ulistify(tt.input)
+			if diff := cmp.Diff(got, tt.expected); diff != "" {
+				t.Errorf("ulistify(%q)\n  got:      %v\n  expected: %v\n  Diff:     %s", tt.input, got, tt.expected, diff)
+			}
+		})
+	}
+}
+
+func TestOlistify(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected OrderedList
+	}{
+		{
+			name:  "single item",
+			input: "1. item one",
+			expected: OrderedList{
+				OrderedItem([]Node{Plain("item one")}),
+			},
+		},
+		{
+			name:  "multiple items sequential",
+			input: "1. first\n2. second\n3. third",
+			expected: OrderedList{
+				OrderedItem([]Node{Plain("first")}),
+				OrderedItem([]Node{Plain("second")}),
+				OrderedItem([]Node{Plain("third")}),
+			},
+		},
+		{
+			name:  "all ones prefix",
+			input: "1. first\n1. second",
+			expected: OrderedList{
+				OrderedItem([]Node{Plain("first")}),
+				OrderedItem([]Node{Plain("second")}),
+			},
+		},
+		{
+			name:  "item with bold",
+			input: "1. **bold** item",
+			expected: OrderedList{
+				OrderedItem([]Node{Bold("bold"), Plain(" item")}),
+			},
+		},
+		{
+			name:  "item with italic",
+			input: "1. *italic* item",
+			expected: OrderedList{
+				OrderedItem([]Node{Italic("italic"), Plain(" item")}),
+			},
+		},
+		{
+			name:  "item with link",
+			input: "1. [link](url.com)",
+			expected: OrderedList{
+				OrderedItem([]Node{Hyperlink{Content: []Node{Plain("link")}, Link: "url.com"}}),
+			},
+		},
+		{
+			name:  "five items",
+			input: "1. one\n2. two\n3. three\n4. four\n5. five",
+			expected: OrderedList{
+				OrderedItem([]Node{Plain("one")}),
+				OrderedItem([]Node{Plain("two")}),
+				OrderedItem([]Node{Plain("three")}),
+				OrderedItem([]Node{Plain("four")}),
+				OrderedItem([]Node{Plain("five")}),
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := olistify(tt.input)
+			if diff := cmp.Diff(got, tt.expected); diff != "" {
+				t.Errorf("olistify(%q)\n  got:      %v\n  expected: %v\n  Diff:     %s", tt.input, got, tt.expected, diff)
 			}
 		})
 	}
