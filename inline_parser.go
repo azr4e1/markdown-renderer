@@ -26,9 +26,10 @@ const (
 	CROSSED
 )
 
-var ImagePattern = regexp.MustCompile(IMAGEREGEX)
-var HyperlinkPattern = regexp.MustCompile(LINKREGEX)
+var imagePattern = regexp.MustCompile(IMAGEREGEX)
+var hyperlinkPattern = regexp.MustCompile(LINKREGEX)
 
+// TODO: handle escapes and nested formatting
 func SimpleParser(line string) []Node {
 	if len(line) < 2 {
 		return []Node{Plain(line)}
@@ -114,9 +115,8 @@ func SimpleParser(line string) []Node {
 }
 
 func ImageParser(line string) []Node {
-	// found := ImagePattern.FindAllString(line, -1)
-	found := ImagePattern.FindAllStringSubmatch(line, -1)
-	textNodes := ImagePattern.Split(line, -1)
+	found := imagePattern.FindAllStringSubmatch(line, -1)
+	textNodes := imagePattern.Split(line, -1)
 	nodes := []Node{}
 
 	if len(textNodes) == 0 {
@@ -146,9 +146,8 @@ func ImageParser(line string) []Node {
 }
 
 func HyperlinkParser(line string) []Node {
-	// found := ImagePattern.FindAllString(line, -1)
-	found := HyperlinkPattern.FindAllStringSubmatch(line, -1)
-	textNodes := HyperlinkPattern.Split(line, -1)
+	found := hyperlinkPattern.FindAllStringSubmatch(line, -1)
+	textNodes := hyperlinkPattern.Split(line, -1)
 	nodes := []Node{}
 
 	if len(textNodes) == 0 {
@@ -163,12 +162,12 @@ func HyperlinkParser(line string) []Node {
 		link := found[i]
 		content := link[1]
 		path := link[2]
-		linkeNode := Hyperlink{
+		linkedNode := Hyperlink{
 			Content: SimpleParser(content),
 			Link:    path,
 		}
 		textNode := textNodes[i+1]
-		nodes = append(nodes, linkeNode)
+		nodes = append(nodes, linkedNode)
 		if len(textNode) > 0 {
 			nodes = append(nodes, Plain(textNode))
 		}
