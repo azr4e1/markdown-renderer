@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"io"
 	"os"
+
+	mdr "github.com/azr4e1/markdown-renderer"
 )
 
 func main() {
@@ -17,19 +19,8 @@ func main() {
 		panic(err)
 	}
 
-	blocks := MarkdownToBlocks(string(data))
+	html := mdr.MarkdownToHTML(string(data))
 
-	for _, b := range blocks {
-		block := BlockParser(b)
-		fmt.Println(block)
-		fmt.Println("---")
-	}
+	fmt.Println(html.HTMLRender())
+
 }
-
-// func main() {
-// 	text := "![This is an image](hello0.png) *Ci ao c om*-ok -![This is an image](hello1.png) ![This is an image](hello2.png) **e va**"
-// 	nodes := NodeParser([]Text{Plain(text)})
-
-// 	fmt.Println(text)
-// 	fmt.Println(nodes)
-// }
