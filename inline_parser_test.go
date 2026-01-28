@@ -6,7 +6,138 @@ import (
 	"github.com/google/go-cmp/cmp"
 )
 
-func TestLineParser(t *testing.T) {
+func TestImageParser(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected []Text
+	}{
+		{
+			name:     "empty string",
+			input:    "",
+			expected: []Text{},
+		},
+		{
+			name:     "plain text only",
+			input:    "hello world",
+			expected: []Text{Plain("hello world")},
+		},
+		{
+			name:     "single image",
+			input:    "![alt text](image.png)",
+			expected: []Text{Image{Content: []Text{Plain("alt text")}, Path: "image.png"}},
+		},
+		{
+			name:     "image with plain text before",
+			input:    "hello ![alt](img.png)",
+			expected: []Text{Plain("hello "), Image{Content: []Text{Plain("alt")}, Path: "img.png"}},
+		},
+		{
+			name:     "image with plain text after",
+			input:    "![alt](img.png) world",
+			expected: []Text{Image{Content: []Text{Plain("alt")}, Path: "img.png"}, Plain(" world")},
+		},
+		{
+			name:     "image with text before and after",
+			input:    "hello ![alt](img.png) world",
+			expected: []Text{Plain("hello "), Image{Content: []Text{Plain("alt")}, Path: "img.png"}, Plain(" world")},
+		},
+		{
+			name:     "multiple images",
+			input:    "![a](1.png)![b](2.png)",
+			expected: []Text{Image{Content: []Text{Plain("a")}, Path: "1.png"}, Image{Content: []Text{Plain("b")}, Path: "2.png"}},
+		},
+		{
+			name:     "image with bold in alt text",
+			input:    "![**bold**](img.png)",
+			expected: []Text{Image{Content: []Text{Bold("bold")}, Path: "img.png"}},
+		},
+		{
+			name:     "image with italic in alt text",
+			input:    "![*italic*](img.png)",
+			expected: []Text{Image{Content: []Text{Italic("italic")}, Path: "img.png"}},
+		},
+		{
+			name:     "image with url path",
+			input:    "![logo](https://example.com/logo.png)",
+			expected: []Text{Image{Content: []Text{Plain("logo")}, Path: "https://example.com/logo.png"}},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := ImageParser(tt.input)
+			if diff := cmp.Diff(got, tt.expected); diff != "" {
+				t.Errorf("ImageParser(%q)\n  got:      %v\n  expected: %v\n  Diff:      %s", tt.input, got, tt.expected, diff)
+			}
+		})
+	}
+}
+
+func TestHyperlinkParser(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected []Text
+	}{
+		{
+			name:     "empty string",
+			input:    "",
+			expected: []Text{},
+		},
+		{
+			name:     "plain text only",
+			input:    "hello world",
+			expected: []Text{Plain("hello world")},
+		},
+		{
+			name:     "single link",
+			input:    "[click here](https://example.com)",
+			expected: []Text{Image{Content: []Text{Plain("click here")}, Path: "https://example.com"}},
+		},
+		{
+			name:     "link with plain text before",
+			input:    "visit [site](url.com)",
+			expected: []Text{Plain("visit "), Image{Content: []Text{Plain("site")}, Path: "url.com"}},
+		},
+		{
+			name:     "link with plain text after",
+			input:    "[site](url.com) for info",
+			expected: []Text{Image{Content: []Text{Plain("site")}, Path: "url.com"}, Plain(" for info")},
+		},
+		{
+			name:     "link with text before and after",
+			input:    "visit [site](url.com) now",
+			expected: []Text{Plain("visit "), Image{Content: []Text{Plain("site")}, Path: "url.com"}, Plain(" now")},
+		},
+		{
+			name:     "multiple links",
+			input:    "[a](1.com)[b](2.com)",
+			expected: []Text{Image{Content: []Text{Plain("a")}, Path: "1.com"}, Image{Content: []Text{Plain("b")}, Path: "2.com"}},
+		},
+		{
+			name:     "link with bold in text",
+			input:    "[**bold link**](url.com)",
+			expected: []Text{Image{Content: []Text{Bold("bold link")}, Path: "url.com"}},
+		},
+		{
+			name:     "link with italic in text",
+			input:    "[*italic link*](url.com)",
+			expected: []Text{Image{Content: []Text{Italic("italic link")}, Path: "url.com"}},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := HyperlinkParser(tt.input)
+			if diff := cmp.Diff(got, tt.expected); diff != "" {
+				t.Errorf("HyperlinkParser(%q)\n  got:      %v\n  expected: %v\n  Diff:      %s", tt.input, got, tt.expected, diff)
+			}
+		})
+	}
+}
+
+func TestSimpleParser(t *testing.T) {
 	tests := []struct {
 		name     string
 		input    string
@@ -121,7 +252,7 @@ func TestLineParser(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := LineParser(tt.input)
+			got := SimpleParser(tt.input)
 			if diff := cmp.Diff(got, tt.expected); diff != "" {
 				t.Errorf("LineParser(%q)\n  got:      %v\n  expected: %v\n  Diff:      %s", tt.input, got, tt.expected, diff)
 			}
