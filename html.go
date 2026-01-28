@@ -1,18 +1,21 @@
 package markdownrenderer
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 type HTMLNode interface {
 	HTMLRender() string
 }
 
 func htmlRender(nodes []HTMLNode) string {
-	render := ""
+	builder := new(strings.Builder)
 	for _, h := range nodes {
-		render += h.HTMLRender()
+		builder.WriteString(h.HTMLRender())
 	}
 
-	return render
+	return builder.String()
 }
 
 // Leaves
@@ -102,22 +105,24 @@ func (b HTMLBreak) HTMLRender() string {
 	return "<br>"
 }
 func (b HTMLOrderedList) HTMLRender() string {
-	result := "<ol>"
+	builder := new(strings.Builder)
+	builder.WriteString("<ol>")
 	for _, item := range b {
 		renderedItem := htmlRender(item)
-		result += fmt.Sprintf("<li>%s</li>", renderedItem)
+		builder.WriteString(fmt.Sprintf("<li>%s</li>", renderedItem))
 	}
-	result += "</ol>"
+	builder.WriteString("</ol>")
 
-	return result
+	return builder.String()
 }
 func (b HTMLUnorderedList) HTMLRender() string {
-	result := "<ul>"
+	builder := new(strings.Builder)
+	builder.WriteString("<ul>")
 	for _, item := range b {
 		renderedItem := htmlRender(item)
-		result += fmt.Sprintf("<li>%s</li>", renderedItem)
+		builder.WriteString(fmt.Sprintf("<li>%s</li>", renderedItem))
 	}
-	result += "</ul>"
+	builder.WriteString("</ul>")
 
-	return result
+	return builder.String()
 }
