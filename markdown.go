@@ -82,26 +82,38 @@ type Table struct {
 }
 
 func (b Header) ToHTML() HTMLNode {
-	return nil
+	return HTMLHeader{Level: b.Level, Content: markdownToHTML(b.Content)}
 }
 func (b Paragraph) ToHTML() HTMLNode {
-	return nil
+	return HTMLParagraph(markdownToHTML(b))
 }
 func (b Code) ToHTML() HTMLNode {
-	return nil
+	return HTMLCode(b)
 }
 func (b Quote) ToHTML() HTMLNode {
-	return nil
+	return HTMLQuote(markdownToHTML(b))
 }
 func (b Break) ToHTML() HTMLNode {
-	return nil
+	return HTMLBreak(b)
 }
 func (b OrderedList) ToHTML() HTMLNode {
-	return nil
+	htmlItems := []HTMLOrderedItem{}
+	for _, item := range b {
+		htmlItem := markdownToHTML(item)
+		htmlItems = append(htmlItems, htmlItem)
+	}
+	return HTMLOrderedList(htmlItems)
 }
 func (b UnorderedList) ToHTML() HTMLNode {
-	return nil
+	htmlItems := []HTMLUnorderedItem{}
+	for _, item := range b {
+		htmlItem := markdownToHTML(item)
+		htmlItems = append(htmlItems, htmlItem)
+	}
+	return HTMLUnorderedList(htmlItems)
 }
+
+// TODO: to implement
 func (b Table) ToHTML() HTMLNode {
 	return nil
 }
