@@ -59,6 +59,7 @@ func (t HTMLImage) HTMLRender() string {
 
 // Containers
 
+type HTMLDiv []HTMLNode
 type HTMLHeader struct {
 	Content []HTMLNode
 	Level   int
@@ -82,6 +83,9 @@ type HTMLTable struct {
 	Rows   []TableRow
 }
 
+func (b HTMLDiv) HTMLRender() string {
+	return fmt.Sprintf("<div>%s</div>", htmlRender(b))
+}
 func (b HTMLHeader) HTMLRender() string {
 	return fmt.Sprintf("<h%d>%s</h%d>", b.Level, htmlRender(b.Content), b.Level)
 }
@@ -89,7 +93,7 @@ func (b HTMLParagraph) HTMLRender() string {
 	return fmt.Sprintf("<p>%s</p>", htmlRender(b))
 }
 func (b HTMLCode) HTMLRender() string {
-	return fmt.Sprintf("<pre>%s</pre>", b)
+	return fmt.Sprintf("<pre><code>%s</code></pre>", b)
 }
 func (b HTMLQuote) HTMLRender() string {
 	return fmt.Sprintf("<blockquote>%s</blockquote>", b)
