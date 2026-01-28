@@ -62,6 +62,9 @@ func isHeader(block string) (int, bool) {
 		isH = true
 		block = strings.TrimPrefix(block, HEADERPREFIX)
 	}
+	// test if there is at least a single space
+	isH = strings.HasPrefix(block, " ")
+
 	return level, isH
 }
 
