@@ -86,7 +86,7 @@ func (b HTMLHeader) HTMLRender() string {
 	return fmt.Sprintf("<h%d>%s</h%d>", b.Level, htmlRender(b.Content), b.Level)
 }
 func (b HTMLParagraph) HTMLRender() string {
-	return fmt.Sprintf("<p>%s</p>", b)
+	return fmt.Sprintf("<p>%s</p>", htmlRender(b))
 }
 func (b HTMLCode) HTMLRender() string {
 	return fmt.Sprintf("<pre>%s</pre>", b)
